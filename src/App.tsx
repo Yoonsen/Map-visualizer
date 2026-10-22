@@ -106,7 +106,7 @@ function App() {
             {activeTab === 'map' ? (
               <MapView points={points} onReset={reset} />
             ) : (
-              <DataTable points={points} onRemove={removePoint} />
+              <DataTable points={points} filename={data?.filename} onRemove={removePoint} />
             )}
           </div>
         )}

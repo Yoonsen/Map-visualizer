@@ -1,32 +1,29 @@
-# React + TypeScript + Vite
+# Map Visualizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+En rask og brukervennlig PWA (Progressive Web App) for å visualisere og redigere stedsdata fra CSV- og Excel-filer (`.csv`, `.xls`, `.xlsx`) på et interaktivt kart.
 
-Currently, two official plugins are available:
+## Funksjonalitet
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Fleksibel kolonnemapping:** Automatisk gjetting og manuell kobling av kolonner for breddegrad, lengdegrad, stedsnavn, beskrivelse, kategori og størrelse/frekvens.
+- **Høy ytelse:** Støtter opptil 10 000 punkter samtidig ved hjelp av Canvas-basert kartrendering i Leaflet.
+- **Tilpassbare markører:**
+  - Sirkler med skalerbar radius (justerbar min/maks-størrelse) basert på tallverdier/frekvens.
+  - Fargekoding etter kategori med automatisk fargeforklaring (legend).
+  - Standard kartmarkører (dråper).
+- **Redigering og eksport av data:**
+  - Søkbar tabellvisning der enkeltrader kan fjernes direkte fra datasettet og kartet.
+  - Last ned det redigerte datasettet tilbake som **CSV** eller **Excel (.xlsx)** med alle originale kolonner intakt.
+- **Bildeeksport:** Last ned nåværende kartutsnitt som et høyoppløselig **JPG**-bilde til bruk i presentasjoner og rapporter.
 
-## React Compiler
+## Utvikling lokalt
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# Installer avhengigheter
+npm install
 
-## Expanding the Oxlint configuration
+# Start utviklingsserver
+npm run dev
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+# Bygg for produksjon
+npm run build
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.

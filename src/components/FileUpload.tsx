@@ -13,7 +13,7 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const processFile = async (file: File) => {
+  const processFile = useCallback(async (file: File) => {
     setError(null);
     const extension = file.name.split('.').pop()?.toLowerCase();
 
@@ -56,7 +56,7 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
           } else {
             setError("Regnearket er tomt.");
           }
-        } catch (err) {
+        } catch {
           setError("Feil ved lesing av Excel-filen.");
         }
       };
@@ -64,7 +64,7 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
     } else {
       setError("Ugyldig filtype. Vennligst last opp en .csv, .xls eller .xlsx fil.");
     }
-  };
+  }, [onDataLoaded]);
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -72,7 +72,7 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       processFile(e.dataTransfer.files[0]);
     }
-  }, []);
+  }, [processFile]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

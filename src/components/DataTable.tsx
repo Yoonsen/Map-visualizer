@@ -1,13 +1,16 @@
 import { useState, useMemo } from 'react';
 import type { MapPoint } from '../types';
-import { Search, Trash2 } from 'lucide-react';
+import { Search, Trash2, Download, FileSpreadsheet } from 'lucide-react';
+import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 
 interface DataTableProps {
   points: MapPoint[];
+  filename?: string;
   onRemove: (id: string) => void;
 }
 
-export function DataTable({ points, onRemove }: DataTableProps) {
+export function DataTable({ points, filename, onRemove }: DataTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredPoints = useMemo(() => {
@@ -20,21 +23,80 @@ export function DataTable({ points, onRemove }: DataTableProps) {
     );
   }, [points, searchTerm]);
 
+  const baseName = useMemo(() => {
+    if (!filename) return 'redigert_data';
+    const nameWithoutExt = filename.replace(/\.[^/.]+$/, '');
+    return `${nameWithoutExt}_redigert`;
+  }, [filename]);
+
+  const getExportRows = () => {
+    return points.map(p => p.originalData || {
+      name: p.name ?? '',
+      category: p.category ?? '',
+      size: p.size ?? '',
+      lat: p.lat,
+      lng: p.lng,
+      description: p.description ?? ''
+    });
+  };
+
+  const handleDownloadCSV = () => {
+    const rows = getExportRows();
+    const csv = Papa.unparse(rows);
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${baseName}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadXLSX = () => {
+    const rows = getExportRows();
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Steder');
+    XLSX.writeFile(workbook, `${baseName}.xlsx`);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-      <div className="p-4 border-b bg-gray-50 flex items-center justify-between">
+      <div className="p-4 border-b bg-gray-50 flex flex-wrap gap-4 items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-700">Datatabell ({filteredPoints.length} rader)</h2>
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search size={16} className="text-gray-400" />
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleDownloadCSV}
+            disabled={points.length === 0}
+            className="inline-flex items-center px-3 py-2 bg-green-50 text-green-700 border border-green-200 rounded-md text-sm font-medium hover:bg-green-100 transition-colors disabled:opacity-50"
+            title="Last ned gjenværende rader som CSV"
+          >
+            <Download size={16} className="mr-1.5" />
+            Last ned CSV
+          </button>
+          <button
+            onClick={handleDownloadXLSX}
+            disabled={points.length === 0}
+            className="inline-flex items-center px-3 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-sm font-medium hover:bg-blue-100 transition-colors disabled:opacity-50"
+            title="Last ned gjenværende rader som Excel (.xlsx)"
+          >
+            <FileSpreadsheet size={16} className="mr-1.5" />
+            Last ned Excel
+          </button>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search size={16} className="text-gray-400" />
+            </div>
+            <input
+              type="text"
+              className="pl-9 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 w-64"
+              placeholder="Søk i navn, kategori..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
           </div>
-          <input
-            type="text"
-            className="pl-9 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 w-64"
-            placeholder="Søk i navn, kategori..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-          />
         </div>
       </div>
       
